@@ -1,0 +1,63 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+# CodeRabbit config — https://docs.coderabbit.ai/reference/configuration
+language: en-US
+
+reviews:
+  # "assertive" = more nitpicks; good for a learning project.
+  profile: assertive
+  high_level_summary: true
+  review_status: true
+  collapse_walkthrough: false
+  poem: false
+
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches:
+      - main
+  # Note: public repos under 10 stars must trigger reviews manually:
+  # comment "@coderabbitai review" on the PR.
+
+  path_filters:
+    - "!**/go.sum"
+    - "!**/vendor/**"
+
+  path_instructions:
+    - path: "**/*.go"
+      instructions: |
+        This is a learning project (systems design / CAP). The author writes all code by hand.
+        Explain the *why* behind each finding and point to the relevant concept instead of
+        pasting full rewrites. Focus on:
+        - Concurrency correctness: data races, mutex scope, goroutine leaks, context cancellation.
+        - Booking path must be strongly consistent (CP): no double-booking, correct transaction
+          isolation, row locking, idempotency keys.
+        - Error wrapping (%w), no swallowed errors, idiomatic Go.
+    - path: "**/*_test.go"
+      instructions: |
+        Check that tests cover concurrent scenarios and are runnable with `go test -race`.
+        Prefer table-driven tests.
+    - path: "docs/**/*.md"
+      instructions: |
+        Check that docs stay consistent with docs/ARCHITECTURE.md and docs/ROADMAP.md
+        and that technical claims (consistency models, replication, CAP) are accurate.
+    - path: "**/{charts,helm,k8s,deploy}/**"
+      instructions: |
+        Review Kubernetes/Helm manifests for resource limits, probes, and sane defaults
+        for running on a local kind cluster.
+
+  tools:
+    golangci-lint:
+      enabled: true
+    markdownlint:
+      enabled: true
+    yamllint:
+      enabled: true
+    shellcheck:
+      enabled: true
+    hadolint:
+      enabled: true
+    gitleaks:
+      enabled: true
+
+chat:
+  auto_reply: true
